@@ -9,3 +9,6 @@ Currently, `Dryads` is under active development and does not support a full inst
 
 ## Tutorial
 `dev.ipynb` is used for code development, but serves as a good overview and a simple tutorial for `Dryads`.  A more complete tutorial with documentation will be added.
+
+### Acknowledgement
+[Hope Chen](https://github.com/hopehhchen) is currently in charge of the development and maintainence of `Drayads`.  The project was started by Stella Offner and Chris Faesi as a way to analyse the pressure profiles within star forming clumps/cores.
