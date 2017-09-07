@@ -3,6 +3,9 @@
 
 `Dryads` uses [the `astrodendro` package](http://dendrograms.org) to calculate the dendrogram.
 
+## Status of the Package
+Currently, `Dryads` is under active development and does not support a full installation through services like `pip`.  You are welcome to try the codes by downloading the github repo, only at your own risk.  You are also welcome to report issues/suggest features via [the issue tracker](https://github.com/hopehhchen/Dryads/issues).
+
 
 ## Tutorial
 `dev.ipynb` is used for code development, but serves as a good overview and a simple tutorial for `Dryads`.  A more complete tutorial with documentation will be added.
