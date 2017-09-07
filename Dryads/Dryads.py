@@ -17,6 +17,33 @@ from astrodendro import Dendrogram
 
 
 class Dryads(object):
+    '''
+    A toolkit for exploring the dendrogram.
+
+    Inputs
+    ------
+    data: numpy.ndarray
+          This is used to build the dendrogram and the "contour masks."  In
+          theory, the array can be from 1D to 3D, but the package at the moment
+          is built with a 2D array in mind.
+
+    header: fits.header.Header
+            The header that includes astrometry information for data.
+
+    distance: numbers.Number or astropy.Quantity
+              The physical distance to the supposed astronomical object.  If no
+              unit, it is assumed in pc.
+
+    cbins: int or 1D numpy.ndarray
+           This is used to determine the contour bins, which in turns determine
+           the contour levels where physical quantities are calculated.
+
+    cscale: str; the default is 'linear'.
+            The contour scale.  This has to be either 'linear' or 'log', and is
+            used when cbins is an integer, to calculate the contour bins.
+
+    *args, **kargs
+    '''
 
 
     def __init__(self, data, header, distance, cbins, cscale = 'linear', *args, **kargs):
