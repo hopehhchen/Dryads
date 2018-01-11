@@ -112,7 +112,7 @@ class Dryads(object):
             imgscale_ang = abs(header['CD1_1'])
             self.imgscale_ang = imgscale_ang  ## assuming degrees
         else:
-            raise ValueError('The header should include the angular pix size. No non-normal proj.')
+            raise ValueError('The header should include the angular pix size. No irregular proj.')
 
 
         # distance
