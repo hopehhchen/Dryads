@@ -1,6 +1,8 @@
 # Dryads
 *Dryads* is the name of tree nymphs in Greek mythology and a toolkit that includes convenient functions to explore the dendrogram (the *"tree diagram"*) and to derive properties based on the dendrogram structures.
 
+![demonstration](https://github.com/hopehhchen/Dryads/blob/master/Dryads.png)
+
 `Dryads` uses [the `astrodendro` package](http://dendrograms.org) to calculate the dendrogram.
 
 ## Status of the Package
