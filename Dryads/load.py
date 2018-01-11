@@ -1,5 +1,9 @@
 import sys
 import os
+import warnings
+import numbers
+
+#
 from collections import *
 
 #
@@ -20,6 +24,9 @@ import matplotlib.colors as colors
 
 #
 import pandas as pd
+
+#
+from astrodendro import Dendrogram
 
 ##
 from Dryads import Dryads
