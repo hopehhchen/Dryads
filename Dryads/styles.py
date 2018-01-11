@@ -15,12 +15,25 @@ rcParams['lines.markersize'] = 20
 rcParams['image.cmap'] = 'viridis'
 rcParams['image.interpolation'] = 'none'
 rcParams['image.origin'] = 'bottom'
+# ticks
+rcParams['xtick.top'] = True
+rcParams['xtick.major.pad'] = 8.
+rcParams['xtick.major.size'] = 10.
+rcParams['xtick.minor.size'] = 5.
+rcParams['xtick.direction'] = 'in'
+rcParams['ytick.right'] = True
+rcParams['ytick.major.pad'] = 3.6
+rcParams['ytick.major.size'] = 10.
+rcParams['ytick.minor.size'] = 5.
+rcParams['ytick.direction'] = 'in'
 # patch
 rcParams['patch.facecolor'] = 'yellow'
 rcParams['patch.edgecolor'] = 'none'
 # font
-rcParams['font.size'] = 26
+rcParams['font.size'] = 32
 rcParams['font.family'] = 'StixGeneral'
+# mathtext
+rcParams['mathtext.fontset'] = 'stix'
 # legend
 rcParams['legend.frameon'] = False
 rcParams['legend.scatterpoints'] = 1
@@ -41,4 +54,3 @@ rcParams['figure.subplot.hspace'] = .02
 # savefig
 rcParams['savefig.jpeg_quality'] = 100
 rcParams['savefig.dpi'] = 180
-rcParams['savefig.directory'] = '/Users/hopechen/Desktop/'
