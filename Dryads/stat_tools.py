@@ -96,12 +96,14 @@ class statBasic2D(object):
 class statBasic3D(object):
 
     def __init__(self, values, indices,
-                 metadata = {'spatial_scale': None}):
+                 metadata = {'spatial_scale': None,
+                             'velocity_scale': None}):
 
 
         self.values = values
         self.indices = indices
         self.spatial_scale = metadata['spatial_scale']
+        self.velocity_scale = metadata['velocity_scale']
 
         # mom0/mom1
         self.mom0 = np.nansum(self.values)
@@ -146,6 +148,11 @@ class statBasic3D(object):
         self.major_sigma = dx * np.sqrt(mom2_along(self.mom2, tuple(a)))
         self.minor_sigma = dx * np.sqrt(mom2_along(self.mom2, tuple(b)))
         self.radius = self.major_sigma.unit * np.sqrt(self.major_sigma.value * self.minor_sigma.value)
+        # v_rms
+        dv = self.velocity_scale or u.pixel
+        ax = [0, 0, 0]
+        ax[vaxis] = 1
+        self.v_rms = dv * np.sqrt(mom2_along(self.mom2, tuple(ax)))
         ## position_angle
         a = list(a)
         self.position_angle = np.degrees(np.arctan2(a[0], a[1])) * u.degree
