@@ -137,6 +137,12 @@ class Dryads(object):
 
     def climber(self, data_sigma, unit_coldens = u.cm**-2.):
 
+        #
+        #stat = statBasic2D(mapTpeak[mask], (meshy[mask], meshx[mask]))
+        #stat.calculate()
+
+
+
         # data_coldens, data_sigma
         ## data_coldens
         self.data_coldens = self.data ## allowing data_coldens == data for now.
@@ -221,6 +227,16 @@ class Dryads(object):
 
         return self
 
+
+    def climber3D(self):
+        '''
+        Climber Feature for parsing through 3D cubes.  The properties ave
+        calculated using the statistics provided by the astrodendro package.
+        The constants used for converting flux to density/mass are stored
+        in `constants.py`.
+        '''
+
+        
 
     def plotter(self):
 
