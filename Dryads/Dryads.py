@@ -234,9 +234,21 @@ class Dryads(object):
         calculated using the statistics provided by the astrodendro package.
         The constants used for converting flux to density/mass are stored
         in `constants.py`.
+
+        The feature is in development.  For convenience at the current stage,
+        the cube is assumed to have the third dimension in velocity units
+        (intead of frequency units).  The cubes is also assumed to be in the
+        main beam temperature units.  The main beam efficiency is given in
+        `constants.py`.  (For cubes that are already corrected, please set
+        the efficiency to 1 in `constants.py`.)
         '''
 
-        
+        if self.data.shape != 3:
+            raise ValueError('`climber3D` only applies to 3D data cubes.')
+
+        # velocity scale from the header if it is a cube.
+
+
 
     def plotter(self):
 
