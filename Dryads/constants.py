@@ -10,7 +10,8 @@ import styles
 
 # observations
 ## main beam eff of FCRAO is 0.45 for 12CO and 0.49 for 13CO.
-observation = {'mb_eff': 0.49}
+observation = {'mb_eff': 0.49,
+               'vel_unit': u.m/u.s}
 
 # conversion
 ## B13 and A_W13 are from the equation in Pineda+08: AV = B13*W13+A_W13.

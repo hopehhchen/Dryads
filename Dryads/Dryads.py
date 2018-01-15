@@ -247,8 +247,15 @@ class Dryads(object):
             raise ValueError('`climber3D` only applies to 3D data cubes.')
 
         # velocity scale from the header if it is a cube.
+        if 'CDELT3' in self.header:
+            velscale = abs(self.header['CELT3'])*observation['vel_unit']
+        elif 'CD3_3' in self.header:
+            velscale = abs(self.header['CD3_3'])*observation['vel_unit']
+        else:
+            raise ValueError('The header needs to contain info on the 3rd axis.')
 
-
+        # initiate PPVStatistic with pixel values.
+        
 
     def plotter(self):
 
