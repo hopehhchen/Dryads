@@ -61,7 +61,7 @@ class Dryads(object):
         maskl_dendro = []
         for i in range(len(dendro)):
             mask = mask0.copy()
-            mask[dendro[i].indices(subtree = False)] = True
+            mask[dendro[i].indices(subtree = False)] = True ###
             maskl_dendro.append(mask)
         maskl_dendro = np.array(maskl_dendro)
         self.maskl_dendro = maskl_dendro
@@ -243,19 +243,110 @@ class Dryads(object):
         the efficiency to 1 in `constants.py`.)
         '''
 
-        if self.data.shape != 3:
+        if self.data.ndim != 3:
             raise ValueError('`climber3D` only applies to 3D data cubes.')
 
         # velocity scale from the header if it is a cube.
         if 'CDELT3' in self.header:
+<<<<<<< HEAD
             velscale = abs(self.header['CELT3'])*observation['vel_unit']
+=======
+            velocity_scale = abs(self.header['CDELT3'])*observation['vel_unit']
+>>>>>>> fc191e4... climber3D bug fix
         elif 'CD3_3' in self.header:
             velscale = abs(self.header['CD3_3'])*observation['vel_unit']
         else:
             raise ValueError('The header needs to contain info on the 3rd axis.')
 
+<<<<<<< HEAD
         # initiate PPVStatistic with pixel values.
         
+=======
+        # calculate dendro masks with full extent.
+        maskl_dendro_full = []
+        for i in range(len(self.dendro)):
+            #mask = mask0.copy()
+            #mask[dendro[i].indices(subtree = False)] = True ###
+            maskl_dendro_full.append(self.dendro[i].get_mask())
+        maskl_dendro_full = np.array(maskl_dendro_full)
+        self.maskl_dendro_full = maskl_dendro_full
+
+        # loop through all combinations.
+        results = {'nobs': np.zeros([len(self.maskl_dendro),
+                                     len(self.maskl_contours)])*np.nan,
+                   'radius': np.zeros([len(self.maskl_dendro),
+                                       len(self.maskl_contours)])*np.nan,
+                   'unit_radius': None,
+                   'mass': np.zeros([len(self.maskl_dendro),
+                                     len(self.maskl_contours)])*np.nan,
+                   'unit_mass': None,
+                   'sigma': np.zeros([len(self.maskl_dendro),
+                                      len(self.maskl_contours)])*np.nan,
+                   'unit_sigma': None,
+                   'pressure': np.zeros([len(self.maskl_dendro),
+                                         len(self.maskl_contours)])*np.nan,
+                   'unit_pressure': None,
+                   'virial': np.zeros([len(self.maskl_dendro),
+                                       len(self.maskl_contours)])*np.nan}
+        # looping
+        for i in range(len(self.maskl_dendro)):
+            for j in range(len(self.maskl_contours)):
+
+                # create the intersection mask.
+                mask = (self.maskl_dendro_full[i] & self.maskl_contours[j])
+                mask_noLeaves = (self.maskl_dendro[i] & self.maskl_contours[j])
+
+                # start calculation only if the two masks intersect.
+                if np.sum(mask_noLeaves) != 0:
+
+                    # initiate with indices and values.
+                    meshgrid = np.meshgrid(np.arange(mask.shape[0]),
+                                           np.arange(mask.shape[1]),
+                                           np.arange(mask.shape[2]),
+                                           indexing = 'ij') ## this will be z, y, x (0, 1, 2)
+                    ## indices
+                    indices = (meshgrid[0][mask],
+                               meshgrid[1][mask],
+                               meshgrid[2][mask])
+                    ## values
+                    values = self.data[indices]
+                    ## statBasic3D
+                    spatial_scale = self.imgscale*self.unit_imgscale
+                    #velocity_scale = velocity_scale
+                    stat = statBasic3D(values, indices,
+                                       metadata = {'spatial_scale': spatial_scale,
+                                                   'velocity_scale': velocity_scale})
+                    stat.calculate()
+
+                    # nobs
+                    nobs = np.sum(mask)
+                    results['nobs'][i, j] = nobs
+
+                    # radius
+                    radius = stat.radius.value
+                    results['radius'][i, j] = radius ## pix
+
+                    # mass (total flux)
+                    mass = np.sum(values)
+                    results['mass'][i, j] = mass
+
+                    # sigma
+                    sigma = stat.v_rms.value
+                    results['sigma'][i, j] = sigma ## pix in the v-direction
+
+                    # pressure (flux density * sigma**2)
+                    pressure = mass/(4./3.*np.pi*radius**3.) * sigma**2.
+                    results['pressure'][i, j] = pressure
+
+                    # virial
+                    virial = 5.*sigma**2.*radius/mass
+                    results['virial'][i, j] = virial
+
+                else:
+
+                    continue
+
+>>>>>>> fc191e4... climber3D bug fix
 
     def plotter(self):
 
