@@ -104,4 +104,4 @@ ENV/
 dev.ipynb
 
 # data
-Dryads/data/
+data/*.fits
