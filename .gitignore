@@ -102,3 +102,6 @@ ENV/
 
 # ipynb
 dev.ipynb
+
+# data
+Dryads/data/
