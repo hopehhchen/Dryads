@@ -148,11 +148,13 @@ class DryadsPlotter(object):
             if self.lognorm:
                 mask = (self.dryads.cbins >= vmin)&\
                        (np.isfinite(np.log(self.data_xfeature[i])))&\
-                       (np.isfinite(np.log(self.data_yfeature[i])))
+                       (np.isfinite(np.log(self.data_yfeature[i])))&\
+                       (self.dryads.nobs[i] >= 4.)
             else:
                 mask = (self.dryads.cbins >= vmin)&\
                        (np.isfinite(self.data_xfeature[i]))&\
-                       (np.isfinite(self.data_yfeature[i]))
+                       (np.isfinite(self.data_yfeature[i]))&\
+                       (self.dryads.nobs[i] >= 4.)
 
             if sum(mask) >= 1.:
                 # features to plot

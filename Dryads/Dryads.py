@@ -112,7 +112,9 @@ class Dryads(object):
             imgscale_ang = abs(header['CD1_1'])
             self.imgscale_ang = imgscale_ang  ## assuming degrees
         else:
-            raise ValueError('The header should include the angular pix size. No irregular proj.')
+            imgscale_ang = np.nan
+            self.imgscale_ang = imgscale_ang
+            #raise ValueError('The header should include the angular pix size. No irregular proj.')
 
 
         # distance
@@ -256,7 +258,8 @@ class Dryads(object):
         elif 'CD3_3' in self.header:
             velscale = abs(self.header['CD3_3'])*observation['vel_unit']
         else:
-            raise ValueError('The header needs to contain info on the 3rd axis.')
+            velocity_scale = np.nan
+            #raise ValueError('The header needs to contain info on the 3rd axis.')
 
 <<<<<<< HEAD
         # initiate PPVStatistic with pixel values.
@@ -297,7 +300,7 @@ class Dryads(object):
                 mask_noLeaves = (self.maskl_dendro[i] & self.maskl_contours[j])
 
                 # start calculation only if the two masks intersect.
-                if np.sum(mask_noLeaves) != 0:
+                if (np.sum(mask_noLeaves) != 0):
 
                     # initiate with indices and values.
                     meshgrid = np.meshgrid(np.arange(mask.shape[0]),
@@ -314,8 +317,8 @@ class Dryads(object):
                     spatial_scale = self.imgscale*self.unit_imgscale
                     #velocity_scale = velocity_scale
                     stat = statBasic3D(values, indices,
-                                       metadata = {'spatial_scale': spatial_scale,
-                                                   'velocity_scale': velocity_scale})
+                                       metadata = {'spatial_scale': None,
+                                                   'velocity_scale': None})
                     stat.calculate()
 
                     # nobs
@@ -346,7 +349,21 @@ class Dryads(object):
 
                     continue
 
+<<<<<<< HEAD
 >>>>>>> fc191e4... climber3D bug fix
+=======
+        self.nobs = results['nobs']
+        self.radius = results['radius']
+        self.unit_radius = results['unit_radius']
+        self.mass = results['mass']
+        self.unit_mass = results['unit_mass']
+        self.sigma = results['sigma']
+        self.unit_sigma = results['unit_sigma']
+        self.pressure = results['pressure']
+        self.unit_pressure = results['unit_pressure']
+        self.virial = results['virial']
+
+>>>>>>> 1def26a... mask the scatter plot by nobs (half beam)
 
     def plotter(self):
 
