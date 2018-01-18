@@ -6,13 +6,18 @@ import numpy as np
 
 #
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import styles
 
 #
 from astropy.io import fits
 import astropy.units as u
 import astropy.constants as c
+from astropy.modeling import models, fitting
 from astrodendro import Dendrogram
+
+#
+from stat_tools import *
 
 
 
@@ -136,6 +141,11 @@ class Dryads(object):
         self.unit_imgscale = imgscale.unit
 
 
+        # prepare for climbing
+        self.results = None
+        self.method = None
+
+
 
     def climber(self, data_sigma, unit_coldens = u.cm**-2.):
 
@@ -250,21 +260,15 @@ class Dryads(object):
 
         # velocity scale from the header if it is a cube.
         if 'CDELT3' in self.header:
-<<<<<<< HEAD
-            velscale = abs(self.header['CELT3'])*observation['vel_unit']
-=======
             velocity_scale = abs(self.header['CDELT3'])*observation['vel_unit']
->>>>>>> fc191e4... climber3D bug fix
         elif 'CD3_3' in self.header:
-            velscale = abs(self.header['CD3_3'])*observation['vel_unit']
+            velocity_scale = abs(self.header['CD3_3'])*observation['vel_unit']
         else:
             velocity_scale = np.nan
             #raise ValueError('The header needs to contain info on the 3rd axis.')
 
-<<<<<<< HEAD
-        # initiate PPVStatistic with pixel values.
-        
-=======
+        # initiate PPVStatistic with pixel values. ##
+
         # calculate dendro masks with full extent.
         maskl_dendro_full = []
         for i in range(len(self.dendro)):
@@ -338,8 +342,8 @@ class Dryads(object):
                     results['sigma'][i, j] = sigma ## pix in the v-direction
 
                     # pressure (flux density * sigma**2)
-                    pressure = mass/(4./3.*np.pi*radius**3.) * sigma**2.
-                    results['pressure'][i, j] = pressure
+                    #pressure = mass/(4./3.*np.pi*radius**3.) * sigma**2.
+                    #results['pressure'][i, j] = pressure
 
                     # virial
                     virial = 5.*sigma**2.*radius/mass
@@ -349,9 +353,16 @@ class Dryads(object):
 
                     continue
 
-<<<<<<< HEAD
->>>>>>> fc191e4... climber3D bug fix
-=======
+        # pressure (flux density * sigma**2)
+        pressure_result = results['mass']/(4./3.*np.pi*results['radius']**3.)\
+                          *results['sigma']**2.
+        results['pressure'] = pressure_result
+
+        # virial
+        virial_result = 5.*results['sigma']**2.*results['radius']/results['mass']
+        results['virial'] = virial_result
+
+        # return
         self.nobs = results['nobs']
         self.radius = results['radius']
         self.unit_radius = results['unit_radius']
@@ -363,7 +374,159 @@ class Dryads(object):
         self.unit_pressure = results['unit_pressure']
         self.virial = results['virial']
 
->>>>>>> 1def26a... mask the scatter plot by nobs (half beam)
+
+        self.method = 'clipping'
+        self.results = {'clipping': results}
+
+
+    def extrapolator3D(self):
+        '''
+        Based on the results from clipping, the extrapolator extrapolates
+        properties to the zero point.
+        '''
+
+        if (self.method != 'clipping') or ('extrapolation' in self.results):
+
+            raise ValueError('Need to run climber first/use switch to change scheme.')
+
+        # loop through all combinations.
+        results = {'nobs': np.zeros([len(self.maskl_dendro),
+                                     len(self.maskl_contours)])*np.nan,
+                   'radius': np.zeros([len(self.maskl_dendro),
+                                       len(self.maskl_contours)])*np.nan,
+                   'unit_radius': None,
+                   'mass': np.zeros([len(self.maskl_dendro),
+                                     len(self.maskl_contours)])*np.nan,
+                   'unit_mass': None,
+                   'sigma': np.zeros([len(self.maskl_dendro),
+                                      len(self.maskl_contours)])*np.nan,
+                   'unit_sigma': None,
+                   'pressure': np.zeros([len(self.maskl_dendro),
+                                         len(self.maskl_contours)])*np.nan,
+                   'unit_pressure': None,
+                   'virial': np.zeros([len(self.maskl_dendro),
+                                       len(self.maskl_contours)])*np.nan}
+        badfits = {'flag_radius': np.zeros([len(self.maskl_dendro),
+                                            len(self.maskl_contours)],
+                                           dtype = bool),
+                   'flag_mass': np.zeros([len(self.maskl_dendro),
+                                          len(self.maskl_contours)],
+                                         dtype = bool),
+                   'flag_sigma': np.zeros([len(self.maskl_dendro),
+                                           len(self.maskl_contours)],
+                                          dtype = bool)}
+        # looping
+        for i in range(len(self.maskl_dendro)):
+
+            # grab the dendro feature
+            dendro_feature = self.dendro[i]
+
+            for j in range(len(self.maskl_contours)):
+
+                # masking
+                mask_threshold = max(dendro_feature.vmin, self.cbins[j])
+                mask_section = (self.cbins >= mask_threshold)&\
+                               (self.nobs[i] >= 4.)
+
+                if np.sum(mask_section) >= 3.:
+                    # fitting
+                    ## radius
+                    xfit, yfit = self.cbins[mask_section], self.radius[i][mask_section]
+                    wfit = self.nobs[i][mask_section]
+                    t_init = models.Polynomial1D(1)
+                    fit_t = fitting.LinearLSQFitter()
+                    t_fit = fit_t(t_init, xfit, yfit, weights = wfit)
+                    ##
+                    radius = t_fit.c0.value
+                    if radius < yfit.max():
+                        badfits[i, j] = True
+                    results['radius'][i, j] = radius
+
+                    ## sigma
+                    xfit, yfit = self.cbins[mask_section], self.sigma[i][mask_section]
+                    wfit = self.nobs[i][mask_section]
+                    t_init = models.Polynomial1D(1)
+                    fit_t = fitting.LinearLSQFitter()
+                    t_fit = fit_t(t_init, xfit, yfit, weights = wfit)
+                    ##
+                    sigma = t_fit.c0.value
+                    if sigma < yfit.max():
+                        badfits[i, j] = True
+                    results['sigma'][i, j] = sigma
+
+                    ## mass
+                    xfit, yfit = self.cbins[mask_section], self.mass[i][mask_section]
+                    wfit = self.nobs[i][mask_section]
+                    t_init = models.Polynomial1D(2)
+                    fit_t = fitting.LinearLSQFitter()
+                    t_fit = fit_t(t_init, xfit, yfit, weights = wfit)
+                    ##
+                    mass = t_fit.c0.value
+                    if mass < yfit.max():
+                        t_init = models.Polynomial1D(1)
+                        fit_t = fitting.LinearLSQFitter()
+                        t_fit = fit_t(t_init, xfit, yfit, weights = wfit)
+
+                        mass = t_fit.c0.value
+                        if sigma < yfit.max():
+                            badfits[i, j] = True
+                    results['mass'][i, j] = mass
+
+                else:
+                    continue
+
+        # pressure
+        pressure_result = results['mass']/(4./3.*np.pi*results['radius']**3.)\
+                          *results['sigma']**2.
+        results['pressure'] = pressure_result
+
+        # virial
+        virial_result = 5.*results['sigma']**2.*results['radius']/results['mass']
+        results['virial'] = virial_result
+
+        # return
+        self.radius = results['radius']
+        self.unit_radius = results['unit_radius']
+        self.mass = results['mass']
+        self.unit_mass = results['unit_mass']
+        self.sigma = results['sigma']
+        self.unit_sigma = results['unit_sigma']
+        self.pressure = results['pressure']
+        self.unit_pressure = results['unit_pressure']
+        self.virial = results['virial']
+
+
+        self.method = 'extrapolation'
+        self.results['extrapolation'] = results
+
+
+    def switch(self):
+        '''
+        The feature that allows user to switch between schemes for plotting.
+        '''
+
+        # decision
+        if self.method == 'clipping':
+            results = self.results['extrapolation']
+            self.method = 'extrapolation'
+        elif self.method == 'extrapolation':
+            results = self.results['clipping']
+            self.method = 'clipping'
+        else:
+            raise ValueError('Need to run climber and extrapolator.')
+
+        # switch
+        self.radius = results['radius']
+        self.unit_radius = results['unit_radius']
+        self.mass = results['mass']
+        self.unit_mass = results['unit_mass']
+        self.sigma = results['sigma']
+        self.unit_sigma = results['unit_sigma']
+        self.pressure = results['pressure']
+        self.unit_pressure = results['unit_pressure']
+        self.virial = results['virial']
+
+
 
     def plotter(self):
 
