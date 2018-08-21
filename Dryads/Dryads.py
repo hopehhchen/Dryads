@@ -66,10 +66,20 @@ class Dryads(object):
         maskl_dendro = []
         for i in range(len(dendro)):
             mask = mask0.copy()
+            ## the mask does not include pixels in the children.
             mask[dendro[i].indices(subtree = False)] = True ###
             maskl_dendro.append(mask)
         maskl_dendro = np.array(maskl_dendro)
         self.maskl_dendro = maskl_dendro
+
+        # calculate dendro masks with full extent.
+        maskl_dendro_full = []
+        for i in range(len(self.dendro)):
+            #mask = mask0.copy()
+            #mask[dendro[i].indices(subtree = False)] = True ###
+            maskl_dendro_full.append(self.dendro[i].get_mask())
+        maskl_dendro_full = np.array(maskl_dendro_full)
+        self.maskl_dendro_full = maskl_dendro_full
 
 
 
@@ -268,15 +278,6 @@ class Dryads(object):
             #raise ValueError('The header needs to contain info on the 3rd axis.')
 
         # initiate PPVStatistic with pixel values. ##
-
-        # calculate dendro masks with full extent.
-        maskl_dendro_full = []
-        for i in range(len(self.dendro)):
-            #mask = mask0.copy()
-            #mask[dendro[i].indices(subtree = False)] = True ###
-            maskl_dendro_full.append(self.dendro[i].get_mask())
-        maskl_dendro_full = np.array(maskl_dendro_full)
-        self.maskl_dendro_full = maskl_dendro_full
 
         # loop through all combinations.
         results = {'nobs': np.zeros([len(self.maskl_dendro),

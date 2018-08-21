@@ -105,3 +105,4 @@ dev.ipynb
 
 # data
 data/*.fits
+*.fits
